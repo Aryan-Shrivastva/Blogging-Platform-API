@@ -2,6 +2,8 @@
 
 A RESTful API for a personal blogging platform built with Node.js, Express.js, and SQLite.
 
+> **Project Reference**: [Blogging Platform API - roadmap.sh](https://roadmap.sh/projects/blogging-platform-api)
+
 ## Features
 
 ✅ **Full CRUD Operations** for blog posts
@@ -363,15 +365,3 @@ Blogging-Platform-API/
 - `PORT` - Server port (default: 3000)
 - `NODE_ENV` - Environment (development/production)
 - `DB_NAME` - SQLite database filename (default: blogging_platform.db)
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## License
-
-ISC License
