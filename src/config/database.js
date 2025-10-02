@@ -1,40 +1,39 @@
-const Database = require('better-sqlite3');
-const path = require('path');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
-const dbPath = path.join(__dirname, '..', '..', process.env.DB_NAME || 'blogging_platform.db');
-const db = new Database(dbPath);
+// MongoDB connection configuration
+const connectDB = async () => {
+  try {
+    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/blogging_platform';
+    
+    const conn = await mongoose.connect(mongoURI, {
+      // Modern Mongoose doesn't need these options, but keeping for compatibility
+      // useNewUrlParser: true,
+      // useUnifiedTopology: true,
+    });
 
-// Enable foreign keys
-db.pragma('foreign_keys = ON');
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    
+    // Handle connection events
+    mongoose.connection.on('disconnected', () => {
+      console.log('MongoDB disconnected');
+    });
 
-// Create blog_posts table
-const createPostsTable = `
-  CREATE TABLE IF NOT EXISTS blog_posts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    content TEXT NOT NULL,
-    category TEXT NOT NULL,
-    tags TEXT NOT NULL, -- JSON string
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`;
+    mongoose.connection.on('error', (err) => {
+      console.error('MongoDB connection error:', err);
+    });
 
-// Create the table
-db.exec(createPostsTable);
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error.message);
+    process.exit(1);
+  }
+};
 
-// Create a trigger to update the updated_at timestamp
-const updateTrigger = `
-  CREATE TRIGGER IF NOT EXISTS update_blog_posts_updated_at
-    AFTER UPDATE ON blog_posts
-    BEGIN
-      UPDATE blog_posts SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
-    END
-`;
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  await mongoose.connection.close();
+  console.log('MongoDB connection closed through app termination');
+  process.exit(0);
+});
 
-db.exec(updateTrigger);
-
-console.log('Database initialized successfully');
-
-module.exports = db;
+module.exports = connectDB;

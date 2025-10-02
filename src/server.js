@@ -7,11 +7,14 @@ const helmet = require('helmet');
 const postsRoutes = require('./routes/posts');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 
-// Initialize database
-require('./config/database');
+// Initialize database connection
+const connectDB = require('./config/database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Connect to MongoDB
+connectDB();
 
 // Security middleware
 app.use(helmet());
